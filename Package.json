@@ -1,0 +1,33 @@
+{
+  "name": "horse-racing-database-api",
+  "version": "1.0.0",
+  "description": "Backend API for Horse Racing Database System - ICS321 Project #1",
+  "main": "backend/server.js",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "keywords": [
+    "horse-racing",
+    "database",
+    "mysql",
+    "express",
+    "api"
+  ],
+  "author": "ICS321 Student",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "mysql2": "^3.15.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  }
+  
+}

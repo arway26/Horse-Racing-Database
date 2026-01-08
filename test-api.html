@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Testing - Race & Trainer Endpoints</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .test-sections {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .test-sections {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .test-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .test-section h2 {
+            color: #333;
+            border-bottom: 3px solid;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .test-section.race h2 {
+            border-color: #4CAF50;
+        }
+        
+        .test-section.trainer h2 {
+            border-color: #2196F3;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 0.95rem;
+        }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s;
+            flex: 1;
+        }
+        
+        .btn-test {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-test:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn-trainer {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn-trainer:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .btn-clear {
+            background: #757575;
+            color: white;
+        }
+        
+        .btn-clear:hover {
+            background: #616161;
+        }
+        
+        #raceResults, #trainerResults {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f9f9f9;
+            border-radius: 8px;
+            border-left: 4px solid;
+            display: none;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        #raceResults {
+            border-left-color: #4CAF50;
+        }
+        
+        #trainerResults {
+            border-left-color: #2196F3;
+        }
+        
+        .error {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+        
+        .info-section {
+            margin-bottom: 20px;
+        }
+        
+        .info-section h3 {
+            color: #4CAF50;
+            margin-top: 0;
+            margin-bottom: 15px;
+        }
+        
+        .trainer-info h3 {
+            color: #2196F3;
+        }
+        
+        .info-section p {
+            margin: 8px 0;
+            color: #666;
+            line-height: 1.6;
+        }
+        
+        .info-section strong {
+            color: #333;
+            min-width: 140px;
+            display: inline-block;
+        }
+        
+        .results-list {
+            margin-top: 20px;
+        }
+        
+        .results-list h3 {
+            color: #4CAF50;
+            margin-bottom: 15px;
+        }
+        
+        .result-item {
+            padding: 12px;
+            margin: 8px 0;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #2196F3;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .result-item.first { 
+            border-left-color: #FFD700;
+            background: #fff9e6;
+        }
+        
+        .result-item.second { 
+            border-left-color: #C0C0C0;
+            background: #f5f5f5;
+        }
+        
+        .result-item.third { 
+            border-left-color: #CD7F32;
+            background: #fdf5e6;
+        }
+        
+        .loading {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 API Endpoint Testing</h1>
+        
+        <div class="test-sections">
+            <!-- RACE TEST SECTION -->
+            <div class="test-section race">
+                <h2>🏇 Test: Get Race by ID</h2>
+                
+                <div class="form-group">
+                    <label for="raceId">Race ID:</label>
+                    <input type="text" id="raceId" placeholder="e.g., race37" value="race37">
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-test" onclick="testGetRace()">Test GET Race</button>
+                    <button class="btn-clear" onclick="clearRaceResults()">Clear</button>
+                </div>
+                
+                <div id="raceResults"></div>
+            </div>
+            
+            <!-- TRAINER TEST SECTION -->
+            <div class="test-section trainer">
+                <h2>👨‍🏫 Test: Get Trainer by ID</h2>
+                
+                <div class="form-group">
+                    <label for="trainerId">Trainer ID:</label>
+                    <input type="text" id="trainerId" placeholder="e.g., trainer1" value="trainer1">
+                </div>
+                
+                <div class="button-group">
+                    <button class="btn-trainer" onclick="testGetTrainer()">Test GET Trainer</button>
+                    <button class="btn-clear" onclick="clearTrainerResults()">Clear</button>
+                </div>
+                
+                <div id="trainerResults"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // RACE TEST FUNCTION
+        // ============================================
+        async function testGetRace() {
+            const raceId = document.getElementById('raceId').value.trim();
+            const resultsDiv = document.getElementById('raceResults');
+            
+            if (!raceId) {
+                alert('Please enter a Race ID');
+                return;
+            }
+            
+            const apiUrl = `http://localhost:3000/api/races/${raceId}`;
+            
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<div class="loading">Loading race data...</div>';
+            resultsDiv.className = '';
+            
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to fetch race');
+                }
+                
+                let html = '<div class="info-section">';
+                html += '<h3>✅ Race Information</h3>';
+                html += `<p><strong>Race ID:</strong> ${data.race.raceId}</p>`;
+                html += `<p><strong>Race Name:</strong> ${data.race.raceName}</p>`;
+                html += `<p><strong>Track:</strong> ${data.race.trackName}</p>`;
+                if (data.race.location) {
+                    html += `<p><strong>Location:</strong> ${data.race.location}</p>`;
+                }
+                if (data.race.length) {
+                    html += `<p><strong>Track Length:</strong> ${data.race.length}</p>`;
+                }
+                html += `<p><strong>Date:</strong> ${data.race.raceDate}</p>`;
+                html += `<p><strong>Time:</strong> ${data.race.raceTime}</p>`;
+                html += '</div>';
+                
+                if (data.results && data.results.length > 0) {
+                    html += '<div class="results-list">';
+                    html += '<h3>🏁 Race Results (Ordered by Position)</h3>';
+                    data.results.forEach(result => {
+                        const positionClass = result.results.toLowerCase();
+                        html += `<div class="result-item ${positionClass}">`;
+                        html += `<strong>${result.results.toUpperCase()}</strong> - ${result.horseName} (${result.horseId}) - Prize: $${result.prize}`;
+                        html += '</div>';
+                    });
+                    html += '</div>';
+                } else {
+                    html += '<p>⚠️ No results found for this race</p>';
+                }
+                
+                resultsDiv.innerHTML = html;
+                resultsDiv.className = '';
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <h3>❌ Error</h3>
+                    <p><strong>Message:</strong> ${error.message}</p>
+                    <p><strong>URL:</strong> ${apiUrl}</p>
+                    <p>💡 Make sure:</p>
+                    <ul>
+                        <li>Your server is running on port 3000</li>
+                        <li>The race ID exists in your database</li>
+                        <li>CORS is enabled (should be configured in server.js)</li>
+                    </ul>
+                `;
+                resultsDiv.className = 'error';
+            }
+        }
+        
+        // ============================================
+        // TRAINER TEST FUNCTION
+        // ============================================
+        async function testGetTrainer() {
+            const trainerId = document.getElementById('trainerId').value.trim();
+            const resultsDiv = document.getElementById('trainerResults');
+            
+            if (!trainerId) {
+                alert('Please enter a Trainer ID');
+                return;
+            }
+            
+            const apiUrl = `http://localhost:3000/api/trainers/${trainerId}`;
+            
+            resultsDiv.style.display = 'block';
+            resultsDiv.innerHTML = '<div class="loading">Loading trainer data...</div>';
+            resultsDiv.className = '';
+            
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to fetch trainer');
+                }
+                
+                let html = '<div class="info-section trainer-info">';
+                html += '<h3>✅ Trainer Information</h3>';
+                html += `<p><strong>Trainer ID:</strong> ${data.trainerId}</p>`;
+                html += `<p><strong>First Name:</strong> ${data.fname}</p>`;
+                html += `<p><strong>Last Name:</strong> ${data.lname}</p>`;
+                html += `<p><strong>Full Name:</strong> ${data.fname} ${data.lname}</p>`;
+                html += `<p><strong>Stable ID:</strong> ${data.stableId}</p>`;
+                if (data.stableName) {
+                    html += `<p><strong>Stable Name:</strong> ${data.stableName}</p>`;
+                }
+                if (data.location) {
+                    html += `<p><strong>Stable Location:</strong> ${data.location}</p>`;
+                }
+                html += '</div>';
+                
+                resultsDiv.innerHTML = html;
+                resultsDiv.className = '';
+                
+            } catch (error) {
+                resultsDiv.innerHTML = `
+                    <h3>❌ Error</h3>
+                    <p><strong>Message:</strong> ${error.message}</p>
+                    <p><strong>URL:</strong> ${apiUrl}</p>
+                    <p>💡 Make sure:</p>
+                    <ul>
+                        <li>Your server is running on port 3000</li>
+                        <li>The trainer ID exists in your database</li>
+                        <li>CORS is enabled (should be configured in server.js)</li>
+                    </ul>
+                `;
+                resultsDiv.className = 'error';
+            }
+        }
+        
+        // ============================================
+        // CLEAR FUNCTIONS
+        // ============================================
+        function clearRaceResults() {
+            document.getElementById('raceResults').style.display = 'none';
+            document.getElementById('raceResults').innerHTML = '';
+        }
+        
+        function clearTrainerResults() {
+            document.getElementById('trainerResults').style.display = 'none';
+            document.getElementById('trainerResults').innerHTML = '';
+        }
+        
+        // ============================================
+        // ENTER KEY SUPPORT
+        // ============================================
+        document.getElementById('raceId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testGetRace();
+            }
+        });
+        
+        document.getElementById('trainerId').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                testGetTrainer();
+            }
+        });
+    </script>
+</body>
+</html>
+

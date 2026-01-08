@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<!--
+  Horse Racing Database - Admin Portal (Frontend)
+  Purpose: Provides admin UI to manage races, owners, horses, and trainers.
+  Structure: Header, Sidebar Navigation (tabs), Main content with four sections, Footer, Toast notifications.
+  Accessibility: Semantic regions, ARIA roles for tabs, focus-visible styles.
+-->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Horse Racing Database - Admin Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <!-- Typography: Serif for headings (Merriweather), Sans for body (Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🏇 Horse Racing Database System</h1>
+                <div class="user-info">
+                    <span class="user-role">Admin</span>
+                    <button class="logout-btn" id="logoutBtn">Logout</button>
+                </div>
+            </div>
+        </header>
+
+        <!-- ===============================
+             LAYOUT: Sidebar + Main Content
+             Contains navigation and primary tab content
+           =============================== -->
+        <div class="layout" role="region" aria-label="Admin layout">
+            <!-- ===============================
+                 SIDEBAR: Navigation Tabs
+                 Uses buttons with data-tab to switch sections
+               =============================== -->
+            <aside class="sidebar" aria-label="Admin navigation">
+                <nav class="nav-tabs" role="navigation" aria-label="Admin functions">
+                    <div role="tablist" aria-label="Admin tabs">
+                        <button class="tab-btn active" data-tab="add-race" role="tab" aria-selected="true" aria-controls="add-race">Add Race</button>
+                        <button class="tab-btn" data-tab="delete-owner" role="tab" aria-selected="false" aria-controls="delete-owner">Delete Owner</button>
+                        <button class="tab-btn" data-tab="move-horse" role="tab" aria-selected="false" aria-controls="move-horse">Move Horse</button>
+                        <button class="tab-btn" data-tab="approve-trainer" role="tab" aria-selected="false" aria-controls="approve-trainer">Approve Trainer</button>
+                    </div>
+                </nav>
+            </aside>
+
+            <!-- ===============================
+                 MAIN CONTENT: Tab Panels
+                 Each section is a tabpanel controlled by the sidebar
+               =============================== -->
+            <main class="main-content">
+            <!-- Add Race Tab -->
+            <section class="tab-content active" id="add-race" role="tabpanel" aria-labelledby="add-race">
+                <h2>Add New Race with Results</h2>
+                <form class="form" id="addRaceForm">
+                    <div class="form-section">
+                        <h3>Race Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="raceId">Race ID *</label>
+                                <input type="text" id="raceId" name="raceId" required placeholder="e.g., race37">
+                            </div>
+                            <div class="form-group">
+                                <label for="raceName">Race Name *</label>
+                                <input type="text" id="raceName" name="raceName" required placeholder="e.g., Champions Cup">
+                            </div>
+                            <div class="form-group">
+                                <label for="trackName">Track Name *</label>
+                                <select id="trackName" name="trackName" required>
+                                    <option value="">Select Track</option>
+                                    <option value="Doha">Doha</option>
+                                    <option value="Jubail">Jubail</option>
+                                    <option value="Yanbu">Yanbu</option>
+                                    <option value="Dubai">Dubai</option>
+                                    <option value="Jeddah">Jeddah</option>
+                                    <option value="Bahrain">Bahrain</option>
+                                    <option value="Sharjah">Sharjah</option>
+                                    <option value="Riyadh">Riyadh</option>
+                                    <option value="Dhahran">Dhahran</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="raceDate">Race Date *</label>
+                                <input type="date" id="raceDate" name="raceDate" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="raceTime">Race Time *</label>
+                                <input type="time" id="raceTime" name="raceTime" required>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Race Results</h3>
+                        <div id="resultsContainer">
+                            <div class="result-entry" data-index="0">
+                                <div class="form-grid">
+                                    <div class="form-group">
+                                        <label>Horse ID *</label>
+                                        <input type="text" name="horseId[]" required placeholder="e.g., horse1">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Result *</label>
+                                        <select name="result[]" required>
+                                            <option value="">Select Result</option>
+                                            <option value="first">First</option>
+                                            <option value="second">Second</option>
+                                            <option value="third">Third</option>
+                                            <option value="fourth">Fourth</option>
+                                            <option value="fifth">Fifth</option>
+                                            <option value="last">Last</option>
+                                            <option value="no show">No Show</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Prize Money</label>
+                                        <input type="number" name="prize[]" step="0.01" min="0" placeholder="0.00">
+                                    </div>
+                                    <div class="form-group">
+                                        <button type="button" class="btn-remove" onclick="removeResult(0)">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-secondary" id="addResultBtn">+ Add Another Horse</button>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Add Race</button>
+                        <button type="reset" class="btn-secondary">Reset Form</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Delete Owner Tab -->
+            <section class="tab-content" id="delete-owner" role="tabpanel" aria-labelledby="delete-owner">
+                <h2>Delete Owner and Related Information</h2>
+                <div class="warning-box">
+                    <strong>⚠️ Warning:</strong> This action will permanently delete the owner and all related information from the database. This cannot be undone.
+                </div>
+                <form class="form" id="deleteOwnerForm">
+                    <div class="search-section">
+                        <h3>Search for Owner</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="ownerId">Owner ID *</label>
+                                <input type="text" id="ownerId" name="ownerId" placeholder="e.g., owner1, owner2">
+                            </div>
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button type="button" class="btn-secondary" id="searchOwnerBtn">🔍 Search Owner</button>
+                            </div>
+                        </div>
+                        <p class="text-muted">Available IDs to test: owner1, owner2, owner3, owner12, owner14</p>
+                    </div>
+                    
+                    <div id="ownerInfo" class="info-box" style="display: none;">
+                        <h3>Owner Information</h3>
+                        <div id="ownerDetails" class="details-card"></div>
+                        
+                        <div id="ownerHorses" class="horses-section">
+                            <h4>Horses Owned</h4>
+                            <div id="horsesTable"></div>
+                        </div>
+                        
+                        <div class="warning-box mt-3">
+                            <strong>⚠️ This will delete:</strong>
+                            <ul>
+                                <li>Owner record from Owner table</li>
+                                <li>All ownership records from Owns table</li>
+                                <li>This operation uses a stored procedure with transaction management</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn-danger">⚠️ Delete Owner Permanently</button>
+                            <button type="button" class="btn-secondary" id="cancelDeleteBtn">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Move Horse Tab -->
+            <section class="tab-content" id="move-horse" role="tabpanel" aria-labelledby="move-horse">
+                <h2>Move Horse to Another Stable</h2>
+                <form class="form" id="moveHorseForm">
+                    <div class="search-section">
+                        <h3>Search for Horse</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="moveHorseId">Horse ID *</label>
+                                <input type="text" id="moveHorseId" name="moveHorseId" placeholder="e.g., horse1, horse5">
+                            </div>
+                            <div class="form-group">
+                                <label>&nbsp;</label>
+                                <button type="button" class="btn-secondary" id="searchHorseBtn">🔍 Search Horse</button>
+                            </div>
+                        </div>
+                        <p class="text-muted">Available IDs to test: horse1, horse2, horse3, horse10, horse15</p>
+                    </div>
+                    
+                    <div id="horseInfo" class="info-box" style="display: none;">
+                        <h3>Current Horse Information</h3>
+                        <div id="horseDetails" class="details-card"></div>
+                        
+                        <div class="form-section">
+                            <h3>Select New Stable</h3>
+                            <div class="stable-selection">
+                                <div class="form-group">
+                                    <label for="newStableId">New Stable *</label>
+                                    <select id="newStableId" name="newStableId" required>
+                                        <option value="">Select New Stable</option>
+                                        <option value="stable1">🏇 Zobair Farm - Riyadh (Orange)</option>
+                                        <option value="stable2">🏇 Zayed Farm - Dubai (Kiwi)</option>
+                                        <option value="stable3">🏇 Zahra Farm - Jeddah (Cinnamon)</option>
+                                        <option value="stable4">🏇 Sunny Stables - Jubail (Lemon)</option>
+                                        <option value="stable5">🏇 Ajman Stables - Ajman (Lemon)</option>
+                                        <option value="stable6">🏇 Dubai Stables - Dubai (Bright Blue)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div id="movePreview" class="info-box mt-2" style="display: none;">
+                                <h4>Transfer Summary</h4>
+                                <div class="transfer-arrow">
+                                    <div class="transfer-from">
+                                        <strong>From:</strong>
+                                        <span id="fromStable"></span>
+                                    </div>
+                                    <div class="arrow">➡️</div>
+                                    <div class="transfer-to">
+                                        <strong>To:</strong>
+                                        <span id="toStable"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-actions">
+                            <button type="submit" class="btn-primary">Yes, Move Horse to New Stable</button>
+                            <button type="button" class="btn-secondary" id="cancelMoveBtn">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Approve Trainer Tab -->
+            <section class="tab-content" id="approve-trainer" role="tabpanel" aria-labelledby="approve-trainer">
+                <h2>Approve New Trainer to Join Stable</h2>
+                <div class="info-message">
+                    <strong>💡 Info:</strong> Use this form to add a new trainer to the system and assign them to a stable.
+                </div>
+                <form class="form" id="approveTrainerForm">
+                    <div class="form-section">
+                        <h3>Trainer Information</h3>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="trainerId">Trainer ID *</label>
+                                <input type="text" id="trainerId" name="trainerId" required placeholder="e.g., trainer9">
+                                <small class="field-hint">Must be unique</small>
+                            </div>
+                            <div class="form-group">
+                                <label for="trainerFname">First Name *</label>
+                                <input type="text" id="trainerFname" name="trainerFname" required placeholder="e.g., Ahmed">
+                            </div>
+                            <div class="form-group">
+                                <label for="trainerLname">Last Name *</label>
+                                <input type="text" id="trainerLname" name="trainerLname" required placeholder="e.g., Al-Rashid">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-section">
+                        <h3>Stable Assignment</h3>
+                        <div class="form-group">
+                            <label for="trainerStableId">Assign to Stable *</label>
+                            <select id="trainerStableId" name="trainerStableId" required>
+                                <option value="">Select Stable</option>
+                                <option value="stable1">🏇 Zobair Farm - Riyadh (Orange)</option>
+                                <option value="stable2">🏇 Zayed Farm - Dubai (Kiwi)</option>
+                                <option value="stable3">🏇 Zahra Farm - Jeddah (Cinnamon)</option>
+                                <option value="stable4">🏇 Sunny Stables - Jubail (Lemon)</option>
+                                <option value="stable5">🏇 Ajman Stables - Ajman (Lemon)</option>
+                                <option value="stable6">🏇 Dubai Stables - Dubai (Bright Blue)</option>
+                            </select>
+                            <small class="field-hint">The trainer will work exclusively for this stable</small>
+                        </div>
+                        
+                        <div id="stableInfo" class="info-box" style="display: none;">
+                            <h4>Selected Stable Details</h4>
+                            <div id="stableDetails"></div>
+                        </div>
+                    </div>
+
+                    <div id="trainerPreview" class="info-box" style="display: none;">
+                        <h3>Preview New Trainer</h3>
+                        <div class="preview-card">
+                            <div class="preview-row">
+                                <span class="preview-label">Trainer ID:</span>
+                                <span id="previewTrainerId">-</span>
+                            </div>
+                            <div class="preview-row">
+                                <span class="preview-label">Full Name:</span>
+                                <span id="previewTrainerName">-</span>
+                            </div>
+                            <div class="preview-row">
+                                <span class="preview-label">Stable:</span>
+                                <span id="previewStable">-</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">Approve and Add Trainer</button>
+                        <button type="reset" class="btn-secondary">Clear Form</button>
+                    </div>
+                </form>
+            </section>
+            </main>
+        </div>
+
+        <!-- ===============================
+             FOOTER
+           =============================== -->
+        <footer class="footer" role="contentinfo" aria-label="Footer">
+            <div class="text-center text-muted" style="padding: 1rem 2rem; border-top: 1px solid var(--border-color);">
+                <small>
+                    © <span id="yearSpan"></span> Horse Racing Database System · Admin Portal
+                </small>
+            </div>
+        </footer>
+
+        <!-- ===============================
+             TOAST NOTIFICATIONS
+             Transient status messages shown near bottom-right
+           =============================== -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        // Display current year in footer (non-invasive enhancement)
+        (function(){
+            var el = document.getElementById('yearSpan');
+            if (el) el.textContent = new Date().getFullYear();
+        })();
+    </script>
+</body>
+</html>
