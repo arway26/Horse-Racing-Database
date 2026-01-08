@@ -202,14 +202,6 @@ The system includes:
 
 - `nodemon` - Auto-restart server on changes
 
-## Security Notes
-
-- Never commit `.env` files to version control
-- Use environment variables for sensitive data
-- Implement authentication/authorization for production
-- Use prepared statements (already implemented)
-- Validate and sanitize user inputs
-
 ## Database Schema
 
 The system manages:
